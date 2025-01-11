@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSE Notification</title>
+   
+    <!-- Add this script tag to your HTML file -->
+    <script src="https://unpkg.com/htmx.org@1.9.9/dist/htmx.min.js"></script>
+    <!-- Add this to your HTML file -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.23/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- DaisyUI CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/daisyui@1.10.1/dist/full.js"></script>
+
+
+</head>
+
+<header>
+
+    {% include "nav.html" %}
+    
+</header>
+
+<body>
+
+    {% block content %}{% endblock %}
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+
+<footer class="footer footer-center bg-base-300 text-base-content p-4">
+  <aside>
+    <p>Copyright © 2025 - All right reserved</p>
+  </aside>
+</footer>
+
+</html>

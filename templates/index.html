@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container mx-auto">
+
+ <!-- Clear visual separator -->
+ <hr class="my-2" style="color: blue;">
+
+ <div class="container mx-auto max-w-4xl p-4">
+   <!-- Tabs -->
+   <div role="tablist" class="tabs tabs-bordered">
+
+      <button 
+        role="tab"
+        hx-get="/data/SEBI" 
+        hx-target="#content" 
+        class="tab symbol"
+        onclick="setActiveTab(this)">SEBI</button>
+     
+     <button 
+       role="tab"
+       hx-get="/data/NSE" 
+       hx-target="#content" 
+       class="tab symbol"
+       onclick="setActiveTab(this)">NSE</button>
+
+
+
+       <button 
+         role="tab"
+         hx-get="/data/BSE" 
+         hx-target="#content" 
+         class="tab symbol"
+         onclick="setActiveTab(this)">BSE</button>
+
+       <button 
+         role="tab"
+         hx-get="/data/MCX" 
+         hx-target="#content" 
+         class="tab symbol"
+         onclick="setActiveTab(this)">MCX</button>
+
+   </div>
+
+   <!-- Dynamic Content Area -->
+   <div id="content" class="mt-4">
+
+    
+   </div>
+
+ </div>
+
+
+
+<script>
+
+
+ function setActiveTab(clickedButton) {
+   // Remove active class from all tabs
+   document.querySelectorAll('.symbol').forEach(button => {
+     button.classList.remove('tab-active');
+    // button.classList.add('border-transparent', 'text-gray-500');
+   });
+
+   // Add active class to the clicked tab
+   clickedButton.classList.add('tab-active');
+   //clickedButton.classList.remove('border-transparent', 'text-gray-500');
+ }
+
+ 
+</script>
+
+
+
+{% endblock %}
