@@ -13,8 +13,9 @@ language = "python3"
 requiredFiles = [".replit", "replit.nix"]
 
 [deployment]
-run = ["python3", "main.py"]
-deploymentTarget = "cloudrun"
+run = ["sh", "-c", "uvicorn main:app --host 0.0.0.0"]
+deploymentTarget = "gce"
+build = ["sh", "-c", "pip install -r requirements.txt"]
 
 [[ports]]
 localPort = 8000
