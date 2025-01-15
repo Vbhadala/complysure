@@ -1,5 +1,4 @@
 
-
 run = ["uvicorn", "main:app", "--host", "0.0.0.0", "--reload"]
 modules = ["python-3.11"]
 
@@ -13,7 +12,7 @@ language = "python3"
 requiredFiles = [".replit", "replit.nix"]
 
 [deployment]
-run = ["sh", "-c", "uvicorn main:app --host 0.0.0.0"]
+run = ["uvicorn", "main:app", "--host", "0.0.0.0"]
 deploymentTarget = "gce"
 build = ["sh", "-c", "pip install -r requirements.txt"]
 
