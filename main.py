@@ -33,6 +33,31 @@ async def root(request: Request):
             "data": {'error': 'No data available'}
         })
 
+@app.get("/app", response_class=HTMLResponse)
+async def root_app(request: Request):
+
+    data = fetch_nse()
+    if data:
+        return templates.TemplateResponse("app.html", {"request": request, "data": data})    
+    else:
+        return templates.TemplateResponse("app.html", {
+            "request": request,
+            "data": {'error': 'No data available'}
+        })
+
+
+@app.get("/segment", response_class=HTMLResponse)
+async def root_segment(request: Request):
+
+    data = fetch_bse()
+    if data:
+        return templates.TemplateResponse("segment.html", {"request": request, "data": data})    
+    else:
+        return templates.TemplateResponse("segment.html", {
+            "request": request,
+            "data": {'error': 'No data available'}
+        })
+
 
 @app.get("/data/{exchange}", response_class=HTMLResponse)
 async def get_oc_data(request: Request, exchange:str):
