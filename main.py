@@ -9,8 +9,11 @@ import os
 
 # Define the absolute path for the static directory
 
-# static_path = os.path.join(os.path.dirname(__file__), "static")
+static_path = os.path.join(os.path.dirname(__file__), "static")
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
+
+print(static_path)
+print(templates_path)
 
 
 from utils import fetch_bse, fetch_nse
