@@ -8,7 +8,8 @@ from typing import Any, List
 import os
 
 # Define the absolute path for the static directory
-static_path = os.path.join(os.path.dirname(__file__), "static")
+
+# static_path = os.path.join(os.path.dirname(__file__), "static")
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 
 
