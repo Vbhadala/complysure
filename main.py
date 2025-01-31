@@ -1,5 +1,4 @@
 from fastapi import FastAPI, APIRouter, Request,HTTPException
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse,PlainTextResponse
@@ -7,22 +6,14 @@ from fastapi.responses import JSONResponse, HTMLResponse, FileResponse,PlainText
 from typing import Any, List
 import os
 
-# Define the absolute path for the static directory
-
-static_path = os.path.join(os.path.dirname(__file__), "static")
-templates_path = os.path.join(os.path.dirname(__file__), "templates")
-
-print(static_path)
-print(templates_path)
-
-
 from utils import fetch_bse, fetch_nse
 
 
 app = FastAPI(title="Chat App", version="0.0.1")
-app.mount("/static", StaticFiles(directory=static_path), name="static")
-templates = Jinja2Templates(directory=templates_path)
 
+# Define the absolute path for the static directory
+templates_path = os.path.join(os.path.dirname(__file__), "templates")
+templates = Jinja2Templates(directory=templates_path)
 
 
 @app.get("/", response_class=HTMLResponse)
