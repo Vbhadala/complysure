@@ -70,3 +70,4 @@ async def get_oc_data(request: Request, exchange:str):
         "data": data
     })
 
+
