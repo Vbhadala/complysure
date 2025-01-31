@@ -1,8 +1,7 @@
-
-  <div class="container sm shadow-xl">
+<div class="shadow-xl overflow-hidden">
 
     <div class="card-body">
-
+      
       <div>
         <h2 class="card-title">{{exchange}} Circulars</h2>
        <!-- You can open the modal using ID.showModal() method -->
@@ -16,15 +15,12 @@
          </div>
        </dialog>
        
-
       </div>
-
 
       <div class="overflow-x-auto">
         <table class="table table-xs">
           <thead>
             <tr class="neutral-content" >
-
               <th>Subject</th>
               <th>Date</th>
               <th>Circular</th>
@@ -33,22 +29,19 @@
           <tbody>
             {% for entry in data %}
             <tr class="hover:bg-base-200" onclick="openRowModal(this)">
-
             <td>{{ entry.title}}</td>
              <td>{{ entry.date}}</td>
              <td><a class="link link-primary" href="{{ entry.link }}" 
                    target="_blank" rel="noopener noreferrer">View</a></td>
-
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
+      
     </div>
 
-  </div>
-
- </div>
+</div>
 
 
 
@@ -59,6 +52,7 @@
 </script>
 
 <script>
+  
 const myModal = document.getElementById("my_modal_3");
 
 function openRowModal(row) {
