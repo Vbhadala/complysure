@@ -5,8 +5,13 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 
+ra_ia_dept_id = 9
+exchange_dept_id = 14
 
-def fetch_bse():
+from_date = '01-07-2024'
+to_date = '07-02-2025'
+
+def fetch_sebi():
 
  # Define the URL
  url = "https://www.sebi.gov.in/sebiweb/ajax/home/getnewslistinfo.jsp"
@@ -32,11 +37,11 @@ def fetch_bse():
 
  # Define the payload (form data)
  data = {
-     "nextValue": "2",
+     "nextValue": "1",
      "next": "s",
      "search": "",
-     "fromDate": "",
-     "toDate": "",
+     "fromDate": from_date,
+     "toDate": to_date,
      "fromYear": "",
      "toYear": "",
      "deptId": "14",
@@ -44,18 +49,23 @@ def fetch_bse():
      "ssid": "7",
      "smid": "0",
      "ssidhidden": "7",
-     "intmid": "8",
+     "intmid": "-1",
      "sText": "Legal",
      "ssText": "Circulars",
      "smText": "",
      "doDirect": "-1",
  }
 
+ # print(data)
+
  # Send the POST request
  response = requests.post(url, headers=headers, data=data)
 
+ # print(response)
+
  # Parse HTML response
  soup = BeautifulSoup(response.text, "html.parser")
+ # print(soup)
 
  # Locate the table
  table = soup.find("table")  # Adjust this to match the table's tag and class if needed
@@ -88,13 +98,11 @@ def fetch_bse():
      date = item[0]['text']
      title = item[1]['text']
      link = item[1]['href']
-     
+
 
      final.append({'date': date,'title':title,'link':link})
 
  return final
-
-
 
 
 

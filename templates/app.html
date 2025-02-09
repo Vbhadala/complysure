@@ -13,40 +13,56 @@
       <!-- First Section: Adjusts to Content Width -->
       <div class="w-auto h-auto lg:h-full flex-shrink-0 px-4 overflow-hidden">
 
-        <div class="sticky top-0 p-4 bg-gray-100 rounded-xl w-full h-full">
-          
-            <ul class="flex gap-2 sm:flex-col overflow-hidden content-center justify-center">
-              
-                <li onclick="setActiveSegment(this)" class="px-2 py-2 hover:bg-blue-300 rounded segment">
-                    <a class="truncate" hx-get="/segment" hx-target="#segment">
-                        <span>Stock Broker</span>
-                    </a>
-                </li>
-                <li onclick="setActiveSegment(this)" class="px-2 py-2 hover:bg-blue-300 rounded segment">
-                    <a class="truncate" hx-get="/segment" hx-target="#segment">
-                        <span >MF/PMS</span>
-                    </a>
-                </li>
-                <li onclick="setActiveSegment(this)" class="px-2 py-2 hover:bg-blue-300 rounded segment">
-                    <a class="" hx-get="/segment" hx-target="#segment">
-                  
-                        <span >RA/IA</span>
-                    </a>
-                </li>
-              
-            </ul>
-        </div>
+            <div class="sticky w-auto h-auto lg:h-full top-0 p-4 bg-gray-100 rounded-sm"
+                
+                x-data="{
 
+                  data: [],
+                  isLoading: true,
+                  activeSegment : '',
+                  async fetchSegments(segment) {
+                        console.log('in it', segment)
+                        this.activeSegment = segment;
+                        try {
+                            const response = await fetch(`/api/${segment}`);
+                            const jsonResponse = await response.json();
+                            console.log(jsonResponse)
+                            this.data = jsonResponse.tabs;
+                            Alpine.store('data').segment = segment;
+                            Alpine.store('data').tabs = this.data;
+                            console.log(this.data);
+                            updateSegment();
+                        } catch (error) {
+                            console.error('Error fetching data:', error);
+                        }
+                    },
+                }"
+                x-init="fetchSegments('Stock Broker')"
+                >
+               
+                
+                <ul class="flex flex-col gap-2 items-center justify-center">
+                    <li @click="fetchSegments('Stock Broker')" :class="{'bg-blue-300': activeSegment === 'Stock Broker'}" 
+                        class="px-2 py-2 hover:bg-blue-300 rounded">
+                        <span>Stock Broker</span>
+                    </li>
+                    <li @click="fetchSegments('MF PMS')" :class="{'bg-blue-300': activeSegment === 'MF PMS'}" 
+                        class="px-2 py-2 hover:bg-blue-300 rounded">
+                        <span>MF/PMS</span>
+                    </li>
+                    <li @click="fetchSegments('RA IA')" :class="{'bg-blue-300': activeSegment === 'RA IA'}" 
+                        class="px-2 py-2 hover:bg-blue-300 rounded">
+                        <span>RA/IA</span>
+                    </li>
+                </ul>
+            
+            </div>
 
       </div>
 
+      
       <!-- Second Section -->
-      <div class="w-full h-auto lg:h-full flex-shrink-0 px-4 overflow-hidden">
-        
-          <div id ='segment' class="lg:w-3/4 w-full overflow-hidden">
-
-          </div>
-        
+      <div id = "tabs" class="w-full h-auto lg:h-full gap-10 flex-shrink-0 px-4 overflow-auto">
       </div>
 
   
@@ -56,40 +72,131 @@
 
 <script>
 
-
- function setActiveTab(clickedButton) {
-   // Remove active class from all tabs
-   document.querySelectorAll('.symbol').forEach(button => {
-     button.classList.remove('tab-active');
-    // button.classList.add('border-transparent', 'text-gray-500');
-   });
-
-   // Add active class to the clicked tab
-   clickedButton.classList.add('tab-active');
-   //clickedButton.classList.remove('border-transparent', 'text-gray-500');
- }
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('data', {
+            tabs : [],
+            segment: '',
+            data:[],
+        })
+    })
 
 
- function setActiveSegment(clickedButton) {
-     // Remove active class from all tabs
-     document.querySelectorAll('.segment').forEach(button => {
-       button.classList.remove('bg-blue-300');
-      // button.classList.add('border-transparent', 'text-gray-500');
-     });
+    
+    function updateSegment() {
+        
+        // Get tabs from Alpine store
+        const tabs = Alpine.store('data').tabs;
+        const activeSegment = Alpine.store('data').segment;
 
-     // Add active class to the clicked tab
-     clickedButton.classList.add('bg-blue-300');
-     //clickedButton.classList.remove('border-transparent', 'text-gray-500');
-   }
+        const segment = document.querySelector('#tabs');
+        segment.innerHTML = ''; // Clear existing content
 
-  // Get the content of the #content div
-  const segmentDiv = document.querySelector('#segment');
+        // Create wrapper div
+        const div = document.createElement('div');
+        const content = document.createElement('div');
+        div.classList.add('tabs', 'tabs-bordered');
+        div.setAttribute('role', 'tablist');
+        content.classList.add('mt-8','overflow-x-auto', 'max-h-[400px]', 'overflow-y-auto');
+        content.id = 'content';
 
-  // Check if the #content div is empty
-  if (!segmentDiv || segmentDiv.innerHTML.trim() === '') {
-      // Make an HTMX request to fetch the data dynamically
-      htmx.ajax('GET', '/segment', '#segment');
-  }
+        // Iterate over tabs and create buttons
+        tabs.forEach(tab => {
+            const button = document.createElement('button');
+            button.setAttribute('role', 'tab');
+            button.classList.add('tab');
+            button.dataset.tab = tab;
+            button.setAttribute('onclick', `fetchData('${activeSegment}','${tab}')`);
+            const span = document.createElement('span');
+            span.setAttribute('x-text', `'${tab}'`);
+            button.appendChild(span);
+            div.appendChild(button);
+        });
+
+        // Append div to segment
+        segment.appendChild(div);
+        segment.appendChild(content);
+    }
+
+
+    async function fetchData(segment, tab) {
+        
+        console.log(segment, tab);
+
+        // ✅ Remove 'tab-active' from all tabs
+        document.querySelectorAll('.tab').forEach(btn => {
+            btn.classList.remove('tab-active');
+        });
+
+        // ✅ Add 'tab-active' to the clicked tab
+        const activeTab = document.querySelector(`[data-tab="${tab}"]`);
+        if (activeTab) activeTab.classList.add('tab-active');
+
+
+        try {
+            const response = await fetch(`/api/${segment}/${tab}`);
+            const data = await response.json();
+            console.log(data);
+
+            const content = document.getElementById('content');
+            content.innerHTML = ''; // Clear existing content
+
+            if (data.status === 'ok') {
+                // ✅ Create Table and Populate Data
+                const table = document.createElement('table');
+                table.classList.add('table', 'table-xs');
+
+                // Create Table Header
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr class="bg-gray-200">
+                        <th class="border p-2">Title</th>
+                        <th class="border p-2">Date</th>
+                        <th class="border p-2">Link</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+
+                // Create Table Body
+                const tbody = document.createElement('tbody');
+                data.data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.classList.add('hover:bg-gray-100','neutral-content');
+
+                    row.innerHTML = `
+                        <td class="border p-2">${item.title}</td>
+                        <td class="border p-2">${item.date}</td>
+                        <td class="border p-2"><a href="${item.link}" class="text-blue-500 hover:underline" target="_blank">View</a></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                table.appendChild(tbody);
+                content.appendChild(table);
+
+            } else if (data.status === 'error') {
+                // ✅ Show Error Message
+                content.innerHTML = `<div class="text-red-500 text-center font-semibold p-4">❌ Error loading data. Please try again later.</div>`;
+
+            } else if (data.status === 'pending') {
+                // ✅ Show "Coming Soon" Message
+                content.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-lg bg-gray-100 shadow-md">
+                        <h2 class="text-2xl font-semibold text-gray-700 mb-2">Coming Soon!</h2>
+                        <h4 class="text-gray-400 mb-4">We are working with ${tab} for integration. Stay tuned! </h4>
+                        <p class="text-gray-600 mb-4">If you got any question contact us back.</p>
+                    </div>
+                `;
+            } else {
+                // ✅ Handle Unknown Status
+                content.innerHTML = `<div class="text-gray-600 text-center p-4">Unknown response from the server.</div>`;
+            }
+        } catch (error) {
+            console.error('Fetch Error:', error);
+            document.getElementById('content').innerHTML = `<div class="text-red-500 text-center font-semibold p-4">⚠️ An error occurred while fetching data.</div>`;
+        }
+    }
+
+
 
  
 </script>
