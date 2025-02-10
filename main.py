@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse, HTMLResponse, FileResponse,PlainText
 from typing import Any, List
 import os
 
-from utils import fetch_sebi, fetch_nse
+from utils import fetch_nse, fetch_sebi_exchange, fetch_sebi_mf_pms, fetch_sebi_ra_ia
 
 
 app = FastAPI(title="Chat App", version="0.0.1")
@@ -55,11 +55,13 @@ async def get_segment_data(request: Request, segment:str,category:str):
     #success: status:ok data:data, segment:segment, category:category,
     #error: status:error data:data, segment:segment, category:category,
     #comming soon: status:pending data:data, segment:segment, category:category,
+
+
     
     if segment == 'Stock Broker':
 
         if category == 'SEBI':
-            data = fetch_sebi()
+            data = fetch_sebi_exchange()
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:
@@ -93,7 +95,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
     elif segment == 'MF PMS':
 
         if category == 'SEBI':
-            data = fetch_sebi()
+            data = fetch_sebi_mf_pms()
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:
@@ -105,7 +107,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
 
     elif segment == 'RA IA':
         if category == 'SEBI':
-            data = fetch_sebi()
+            data = fetch_sebi_ra_ia()
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:

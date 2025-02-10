@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="container mx-auto overflow-hidden ">
+<div class="container mx-auto overflow-hidden">
 
  <!-- Clear visual separator -->
  <hr class="my-2" style="color: blue;">
@@ -62,7 +62,7 @@
 
       
       <!-- Second Section -->
-      <div id = "tabs" class="w-full h-auto lg:h-full gap-10 flex-shrink-0 px-4 overflow-auto">
+      <div id = "tabs" class="w-full h-auto lg:h-full gap-10 flex-shrink-0 px-4 overflow-x-auto overflow-y-auto">
       </div>
 
   
@@ -94,9 +94,10 @@
         // Create wrapper div
         const div = document.createElement('div');
         const content = document.createElement('div');
+        
         div.classList.add('tabs', 'tabs-bordered');
         div.setAttribute('role', 'tablist');
-        content.classList.add('mt-8','overflow-x-auto', 'max-h-[400px]', 'overflow-y-auto');
+        content.classList.add('mt-8','overflow-x-auto', 'max-h-96', 'overflow-y-auto');
         content.id = 'content';
 
         // Iterate over tabs and create buttons
@@ -145,7 +146,7 @@
             if (data.status === 'ok') {
                 // ✅ Create Table and Populate Data
                 const table = document.createElement('table');
-                table.classList.add('table', 'table-xs');
+                table.classList.add('table-auto', 'w-max','table-xs');
 
                 // Create Table Header
                 const thead = document.createElement('thead');
