@@ -11,9 +11,9 @@
   <div class="w-full h-screen flex flex-col lg:flex-row py-4">
 
       <!-- Sidebar -->
-      <div class="w-auto h-auto lg:h-full flex-shrink-0 px-4 overflow-hidden">
+      <div class="w-auto h-auto sticky lg:h-full flex-shrink-0 px-4 overflow-hidden bg-gray-100 rounded-sm">
 
-            <div class="sticky w-auto h-auto lg:h-full top-0 p-4 bg-gray-100 rounded-sm"
+            <div class="flex flex-row sm:flex-col w-auto h-auto lg:h-full top-0 p-4 "
                 
                 x-data="{
 
@@ -41,7 +41,8 @@
                 >
                
                 
-                <ul class="flex flex-col gap-2 items-center justify-center">
+                <ul class="flex flex-row sm:flex-col gap-2 items-center justify-center">
+                    
                     <li @click="fetchSegments('Stock Broker')" :class="{'bg-blue-300': activeSegment === 'Stock Broker'}" 
                         class="px-2 py-2 hover:bg-blue-300 rounded">
                         <span>Stock Broker</span>
@@ -95,7 +96,7 @@
         const div = document.createElement('div');
         const content = document.createElement('div');
         
-        div.classList.add('tabs', 'tabs-bordered');
+        div.classList.add('tabs', 'tabs-bordered','overflow-x-auto');
         div.setAttribute('role', 'tablist');
         content.classList.add('mt-8','max-h-full', 'overflow-y-auto');
         content.id = 'content';
