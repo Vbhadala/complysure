@@ -42,6 +42,9 @@ def all_sebi():
                 seen_titles.add(item['title'])
                 all_data.append(item)
 
+    # Sort all_data by the 'date' field (formatted as 'Feb 21, 2025')
+    all_data.sort(key=lambda x: datetime.strptime(x['date'], "%b %d, %Y"), reverse=True)  # Sort in descending order
+
     return all_data
 
 
