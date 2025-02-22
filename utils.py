@@ -8,8 +8,11 @@ from datetime import datetime
 ra_ia_dept_id = 9
 exchange_dept_id = 14
 
+# Get current date
+current_date = datetime.now()
+
 from_date = '01-07-2024'
-to_date = '10-02-2025'
+to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
 
 #date format for SEBI and NSE is DD-MM-YYYY
 
@@ -18,8 +21,31 @@ to_date = '10-02-2025'
 # Keywords to filter out
 keywords = ["Research Analysts", "Investment Advisers"]
 
+def all_sebi():
 
-def fetch_sebi_exchange():
+    # Get current date
+    current_date = datetime.now()
+
+    from_date = '01-11-2024'
+    to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
+
+    
+    all_data = []
+    seen_titles = set()
+    
+    for dept in [14, 15, -1]:
+        
+        data = fetch_sebi_exchange(from_date, to_date, dept)
+    
+        for item in data:
+            if item['title'] not in seen_titles:
+                seen_titles.add(item['title'])
+                all_data.append(item)
+
+    return all_data
+
+
+def fetch_sebi_exchange(from_date, to_date, dept):
 
  # Define the URL
  url = "https://www.sebi.gov.in/sebiweb/ajax/home/getnewslistinfo.jsp"
@@ -52,7 +78,7 @@ def fetch_sebi_exchange():
      "toDate": to_date,
      "fromYear": "",
      "toYear": "",
-     "deptId": "14",
+     "deptId": dept,
      "sid": "1",
      "ssid": "7",
      "smid": "0",
@@ -113,6 +139,8 @@ def fetch_sebi_exchange():
  f_data = [item for item in final if not any(kw.lower() in item.get('title', '').lower() for kw in keywords)]
 
  return f_data
+
+
 
 def fetch_sebi_ra_ia():
 
@@ -208,6 +236,8 @@ def fetch_sebi_ra_ia():
  f_data = [item for item in final if any(kw.lower() in item.get('title', '').lower() for kw in keywords)]
 
  return f_data
+
+
 
 def fetch_sebi_mf_pms():
 
@@ -358,3 +388,139 @@ def fetch_nse():
 
     except requests.exceptions.RequestException as e:
         print(f"Error occurred: {e}")
+
+
+
+def fetch_mcx():
+    
+    url = "https://www.mcxindia.com/backpage.aspx/GetCircularSearch"
+
+    headers = {
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Accept-Language": "en-GB,en-IN;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json",
+        "DNT": "1",
+        "Origin": "https://www.mcxindia.com",
+        "Referer": "https://www.mcxindia.com/circulars/membership-compliance",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+        "sec-ch-ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        "sec-ch-ua-mobile": "?1",
+        "sec-ch-ua-platform": '"Android"',
+        "Cookie": "ASP.NET_SessionId=2lci35vwpip00uo3prz0rlus; _gid=GA1.2.574009522.1736766707; _gat_gtag_UA_121835541_1=1; _ga_8BQ43G0902=GS1.1.1736766706.1.0.1736766706.0.0.0; _ga=GA1.1.349469646.1736766707"
+    }
+
+    data = {
+        "CircularType": "membership-and-compliance",
+        "Year": "2025",
+        "Month": "01"
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code == 200:
+        result = response.json()
+        data = result['d']
+        final = []
+        for item in data:
+         date = item['DisplayCircularDate']
+         title = item['Title']
+         link = item['Documents']
+         final.append({'date': date,'title':title,'link':link})
+
+
+        # Remove entries where 'title' contains 'Surrender of Membership'
+        filtered_data = [item for item in final if 'surrender of membership' not in item.get('title', '').lower()]
+    
+        return filtered_data
+
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.text)
+        return None
+
+
+
+def fetch_cdsl():
+
+
+    kw_exclude = ["DETAILS OF CHANGE OF RTA EFFECTED BY ISSUER", 
+                "DETAILS OF SECURITIES ADMITTED WITH CDSL", 
+                "WITHDRAWAL OF SECURITIES FROM CDSL", 
+                "DETAILS OF CORPORATE ACTION"]
+    
+    url = "https://www.cdslindia.com/Publications/Communique.aspx"
+
+    headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-Language": "en-GB,en-IN;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Cache-Control": "max-age=0",
+        "DNT": "1",
+        "Priority": "u=0, i",
+        "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        "Sec-Ch-Ua-Mobile": "?1",
+        "Sec-Ch-Ua-Platform": '"Android"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+        "Cookie": "_gid=GA1.2.890368200.1736766904; _gat_gtag_UA_66604853_2=1; _ga_J0BFBWN0GT=GS1.1.1736766903.2.0.1736766903.0.0.0; _ga=GA1.1.1265784374.1734770367"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        table = soup.find("table")
+
+        data = []
+
+        if table:
+         rows = table.find_all("tr")
+         for row in rows[1:]:
+             columns = row.find_all("td")
+             row_data = []
+             for col in columns:
+                 # Extract text from the column
+                 cell_text = col.text.strip()
+
+                 # Check if there's a link (<a>) inside the column
+                 link = col.find("a")
+                 if link and link.get("href"):
+                     href = link["href"]
+                     row_data.append({"text": cell_text, "href": href})
+                 else:
+                     row_data.append({"text": cell_text})
+
+             data.append(row_data)
+        else:
+         print("No table found in the response.")
+
+
+        final = []
+        for item in data:
+             date = item[3]['text']
+             title = item[2]['text']
+             link = item[2]['href'][3:]
+             final.append({'date': date,'title':title,'link': ('https://www.cdslindia.com/' + link)})
+
+        f_data = [item for item in final if not any(kw.lower() in item.get('title', '').lower() for kw in kw_exclude)]
+        
+        return f_data
+
+
+    else:
+        print(f"Error: {response.status_code}")
+        print(response.text)
+        return None
+
+
+
+

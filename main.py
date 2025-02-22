@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse, HTMLResponse, FileResponse,PlainText
 from typing import Any, List
 import os
 
-from utils import fetch_nse, fetch_sebi_exchange, fetch_sebi_mf_pms, fetch_sebi_ra_ia
+from utils import all_sebi, fetch_nse, fetch_sebi_exchange, fetch_sebi_mf_pms, fetch_sebi_ra_ia, fetch_cdsl,fetch_mcx
 
 
 app = FastAPI(title="Chat App", version="0.0.1")
@@ -61,7 +61,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
     if segment == 'Stock Broker':
 
         if category == 'SEBI':
-            data = fetch_sebi_exchange()
+            data = all_sebi()
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:
@@ -81,13 +81,23 @@ async def get_segment_data(request: Request, segment:str,category:str):
             return {'status':'pending','segment': segment,'category': category}
 
         elif category == 'MCX':
-            return {'status':'pending','segment': segment,'category': category}
+            data = fetch_mcx()
+            if data:
+                return {'status':'ok','segment': segment,'category': category,'data': data}
+            else:
+                return {'status':'error','segment': segment,'category': category,'message':'No data available'}
+
 
         elif category == 'MSEI':
             return {'status':'pending','segment': segment,'category': category}
 
         elif category == 'CDSL':
-            return {'status':'pending','segment': segment,'category': category}
+            data = fetch_cdsl()
+            if data:
+                return {'status':'ok','segment': segment,'category': category,'data': data}
+            else:
+                return {'status':'error','segment': segment,'category': category,'message':'No data available'}
+
 
         elif category == 'NSDL':
             return {'status':'pending','segment': segment,'category': category}
@@ -116,38 +126,4 @@ async def get_segment_data(request: Request, segment:str,category:str):
     else:
         return {'status':'error','error': 'Invalid option', 'segment': segment,'category': category,}
         
-
-
-@app.get("/segment", response_class=HTMLResponse)
-async def root_segment(request: Request):
-
-    data = fetch_sebi()
-    if data:
-        return templates.TemplateResponse("segment.html", {"request": request, "data": data})    
-    else:
-        return templates.TemplateResponse("segment.html", {
-            "request": request,
-            "data": {'error': 'No data available'}
-        })
-
-
-@app.get("/data/{exchange}", response_class=HTMLResponse)
-async def get_oc_data(request: Request, exchange:str):
-
-    if exchange == "NSE":
-        data = fetch_nse()
-
-    elif exchange == "SEBI":
-        data = fetch_sebi()
-
-    else:
-        data = fetch_nse()
-        
-        
-    return templates.TemplateResponse("circular.html", {
-        "request": request,
-        'exchange': exchange,
-        "data": data
-    })
-
 

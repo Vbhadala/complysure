@@ -10,7 +10,7 @@
   <!-- Fullscreen layout with 3 sections -->
   <div class="w-full h-screen flex flex-col lg:flex-row py-4">
 
-      <!-- First Section: Adjusts to Content Width -->
+      <!-- Sidebar -->
       <div class="w-auto h-auto lg:h-full flex-shrink-0 px-4 overflow-hidden">
 
             <div class="sticky w-auto h-auto lg:h-full top-0 p-4 bg-gray-100 rounded-sm"
@@ -61,8 +61,8 @@
       </div>
 
       
-      <!-- Second Section -->
-      <div id = "tabs" class="w-full h-auto lg:h-full gap-10 flex-shrink-0 px-4 overflow-x-auto overflow-y-auto">
+      <!-- Content Section -->
+      <div id = "tabs" class="max-h-full overflow-hidden gap-10 px-4">
       </div>
 
   
@@ -97,7 +97,7 @@
         
         div.classList.add('tabs', 'tabs-bordered');
         div.setAttribute('role', 'tablist');
-        content.classList.add('mt-8','overflow-x-auto', 'max-h-96', 'overflow-y-auto');
+        content.classList.add('mt-8','max-h-full', 'overflow-y-auto');
         content.id = 'content';
 
         // Iterate over tabs and create buttons
@@ -146,13 +146,13 @@
             if (data.status === 'ok') {
                 // ✅ Create Table and Populate Data
                 const table = document.createElement('table');
-                table.classList.add('table-auto', 'w-max','table-xs');
+                table.classList.add('table','table-xs');
 
                 // Create Table Header
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
                     <tr class="bg-gray-200">
-                        <th class="border p-2">Title</th>
+                        <th class="border p-2 w-[60%] max-w-[60%] break-words">Title</th>
                         <th class="border p-2">Date</th>
                         <th class="border p-2">Link</th>
                     </tr>
@@ -166,7 +166,7 @@
                     row.classList.add('hover:bg-gray-100','neutral-content');
 
                     row.innerHTML = `
-                        <td class="border p-2">${item.title}</td>
+                        <td class="border p-2 w-[60%] max-w-[60%] break-words">${item.title}</td>
                         <td class="border p-2">${item.date}</td>
                         <td class="border p-2"><a href="${item.link}" class="text-blue-500 hover:underline" target="_blank">View</a></td>
                     `;
