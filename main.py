@@ -35,7 +35,7 @@ async def root_app(request: Request):
 async def get_segments(request: Request, segment:str):
 
     if segment == 'Stock Broker':
-        return {'tabs': ['SEBI','NSE','BSE','NCDEX','MCX','MSEI','CDSL','NSDL']}
+        return {'tabs': ['SEBI','NSE','MCX','CDSL','BSE','NCDEX','MSEI','NSDL']}
 
     elif segment == 'MF PMS':
         return {'tabs': ['SEBI','AMFI']}

@@ -31,16 +31,22 @@ def all_sebi():
 
     
     all_data = []
-    seen_titles = set()
     
-    for dept in [14, 15, -1]:
-        
+    for dept in [14, 15]:    
         data = fetch_sebi_exchange(from_date, to_date, dept)
+        all_data.extend(data)
     
-        for item in data:
-            if item['title'] not in seen_titles:
-                seen_titles.add(item['title'])
-                all_data.append(item)
+    all_dept = fetch_sebi_exchange(from_date, to_date, '-1')
+    ex = ["SEBI Regulated Entities", "Stock Brokers", "Stock Exchange"]
+    all_dept_final = [item for item in all_dept if any(kw.lower() in item.get('title', '').lower() for kw in ex)]
+
+    all_data.extend(all_dept_final)
+
+    # Removing duplicates based on 'title'
+    unique_data = {item['title']: item for item in all_data}.values()
+
+    # Convert back to a list if needed
+    all_data = list(unique_data)# Removing duplicates based on 'title'
 
     # Sort all_data by the 'date' field (formatted as 'Feb 21, 2025')
     all_data.sort(key=lambda x: datetime.strptime(x['date'], "%b %d, %Y"), reverse=True)  # Sort in descending order
