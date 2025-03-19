@@ -5,10 +5,10 @@ from fastapi.responses import JSONResponse, HTMLResponse, FileResponse,PlainText
 from typing import Any, List
 import os
 
-from utils import all_sebi, fetch_nse, fetch_sebi_exchange, fetch_sebi_mf_pms, fetch_sebi_ra_ia, fetch_cdsl,fetch_mcx
+from utils import all_sebi, fetch_nse, all_mcx, fetch_sebi_mf_pms, fetch_sebi_ra_ia, fetch_cdsl,fetch_mcx
 
 
-app = FastAPI(title="Chat App", version="0.0.1")
+app = FastAPI(title="Comply Sure", version="0.0.1")
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=templates_path)
 
@@ -81,7 +81,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
             return {'status':'pending','segment': segment,'category': category}
 
         elif category == 'MCX':
-            data = fetch_mcx()
+            data = all_mcx()
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:

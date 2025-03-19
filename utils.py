@@ -11,6 +11,8 @@ exchange_dept_id = 14
 # Get current date
 current_date = datetime.now()
 
+
+
 from_date = '01-07-2024'
 to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
 
@@ -53,14 +55,24 @@ def all_sebi():
 
     return all_data
 
+def all_mcx():
+    
+    all_data = []
+
+    for month in ['03', '02', '01']:    
+        data = fetch_mcx(month)
+        all_data.extend(data)
+
+    return all_data
+
 
 def fetch_sebi_exchange(from_date, to_date, dept):
 
- # Define the URL
- url = "https://www.sebi.gov.in/sebiweb/ajax/home/getnewslistinfo.jsp"
-
- # Define the headers
- headers = {
+    # Define the URL
+    url = "https://www.sebi.gov.in/sebiweb/ajax/home/getnewslistinfo.jsp"
+    
+    # Define the headers
+    headers = {
      "Accept": "*/*",
      "Accept-Language": "en-GB,en-IN;q=0.9,en-US;q=0.8,en;q=0.7",
      "Connection": "keep-alive",
@@ -76,10 +88,10 @@ def fetch_sebi_exchange(from_date, to_date, dept):
      "sec-ch-ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
      "sec-ch-ua-mobile": "?1",
      "sec-ch-ua-platform": '"Android"',
- }
-
- # Define the payload (form data)
- data = {
+    }
+    
+    # Define the payload (form data)
+    data = {
      "nextValue": "1",
      "next": "s",
      "search": "",
@@ -97,25 +109,25 @@ def fetch_sebi_exchange(from_date, to_date, dept):
      "ssText": "Circulars",
      "smText": "",
      "doDirect": "-1",
- }
-
- # print(data)
-
- # Send the POST request
- response = requests.post(url, headers=headers, data=data)
-
- # print(response)
-
- # Parse HTML response
- soup = BeautifulSoup(response.text, "html.parser")
- # print(soup)
-
- # Locate the table
- table = soup.find("table")  # Adjust this to match the table's tag and class if needed
-
- data = []
-
- if table:
+    }
+    
+    # print(data)
+    
+    # Send the POST request
+    response = requests.post(url, headers=headers, data=data)
+    
+    # print(response)
+    
+    # Parse HTML response
+    soup = BeautifulSoup(response.text, "html.parser")
+    # print(soup)
+    
+    # Locate the table
+    table = soup.find("table")  # Adjust this to match the table's tag and class if needed
+    
+    data = []
+    
+    if table:
      rows = table.find_all("tr")
      for row in rows[1:]:
          columns = row.find_all("td")
@@ -123,7 +135,7 @@ def fetch_sebi_exchange(from_date, to_date, dept):
          for col in columns:
              # Extract text from the column
              cell_text = col.text.strip()
-
+    
              # Check if there's a link (<a>) inside the column
              link = col.find("a")
              if link and link.get("href"):
@@ -131,25 +143,25 @@ def fetch_sebi_exchange(from_date, to_date, dept):
                  row_data.append({"text": cell_text, "href": href})
              else:
                  row_data.append({"text": cell_text})
-
+    
          data.append(row_data)
- else:
+    else:
      print("No table found in the response.")
-
- final = []
- for item in data:
+    
+    final = []
+    for item in data:
      date = item[0]['text']
      title = item[1]['text']
      link = item[1]['href']
-
-
+    
+    
      final.append({'date': date,'title':title,'link':link})
-
- f_data = [item for item in final if not any(kw.lower() in item.get('title', '').lower() for kw in keywords)]
-
- return f_data
-
-
+    
+    f_data = [item for item in final if not any(kw.lower() in item.get('title', '').lower() for kw in keywords)]
+    
+    return f_data
+    
+    
 
 def fetch_sebi_ra_ia():
 
@@ -400,7 +412,7 @@ def fetch_nse():
 
 
 
-def fetch_mcx():
+def fetch_mcx(month='03'):
     
     url = "https://www.mcxindia.com/backpage.aspx/GetCircularSearch"
 
@@ -426,7 +438,7 @@ def fetch_mcx():
     data = {
         "CircularType": "membership-and-compliance",
         "Year": "2025",
-        "Month": "01"
+        "Month": month
     }
 
     response = requests.post(url, headers=headers, json=data)
@@ -450,7 +462,7 @@ def fetch_mcx():
     else:
         print(f"Error: {response.status_code}")
         print(response.text)
-        return None
+        return {}
 
 
 
@@ -528,7 +540,7 @@ def fetch_cdsl():
     else:
         print(f"Error: {response.status_code}")
         print(response.text)
-        return None
+        return {}
 
 
 
