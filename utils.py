@@ -356,6 +356,10 @@ def fetch_sebi_mf_pms():
 
 def fetch_nse():
 
+    from_date = '01-07-2024'
+    to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
+
+
     url = f"https://www.nseindia.com/api/circulars?fromDate={from_date}&toDate={to_date}&dept=INSP"
 
     headers = {
