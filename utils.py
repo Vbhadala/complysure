@@ -11,10 +11,15 @@ exchange_dept_id = 14
 # Get current date
 current_date = datetime.now()
 
+class BaseURL:
+    nse = "https://www.nseindia.com/resources/exchange-communication-circulars"
+    bse = "https://www.bseindia.com/markets/MarketInfo/NoticesCirculars.aspx?id=0&txtscripcd=&pagecont=&subject="
+    ncdex = "https://www.ncdex.com/circulars"
+    msei = "https://www.msei.in/downloads/circulars/default"
+    nsdl = "https://nsdl.co.in/business/circular.php"
 
-
-from_date = '01-07-2024'
-to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
+# from_date = '01-07-2024'
+# to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
 
 #date format for SEBI and NSE is DD-MM-YYYY
 
@@ -262,6 +267,9 @@ def fetch_sebi_ra_ia():
 
 def fetch_sebi_mf_pms():
 
+ from_date = '01-11-2024'
+ to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
+
  # Define the URL
  url = "https://www.sebi.gov.in/sebiweb/ajax/home/getnewslistinfo.jsp"
 
@@ -354,9 +362,9 @@ def fetch_sebi_mf_pms():
  return final
 
 
-def fetch_nse():
+def fetch_nse_old():
 
-    from_date = '01-07-2024'
+    from_date = '01-01-2025'
     to_date = current_date.strftime('%d-%m-%Y') #'10-02-2025'
 
 
@@ -413,6 +421,68 @@ def fetch_nse():
 
     except requests.exceptions.RequestException as e:
         print(f"Error occurred: {e}")
+
+
+
+def fetch_nse():
+    from_date = '17-03-2025'
+    to_date = '24-03-2025'
+
+    url = f"https://www.nseindia.com/api/circulars?fromDate={from_date}&toDate={to_date}&dept=INSP"
+
+    headers = {
+        "accept": "application/json, text/plain, */*",
+        "accept-language": "en-GB,en;q=0.9",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+        "referer": "https://www.nseindia.com/resources/exchange-communication-circulars",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "sec-fetch-dest": "empty",
+    }
+
+    session = requests.Session()
+    session.headers.update(headers)
+
+    try:
+        # Step 1: Visit NSE Homepage to establish cookies
+        homepage = session.get("https://www.nseindia.com", timeout=10)
+        homepage.raise_for_status()
+
+        # Step 2: Fetch the circulars API with updated cookies
+        response = session.get(url, timeout=10)
+
+        # # Debug: Print status and headers
+        # print(f"Response Code: {response.status_code}")
+        # print(f"Cookies: {session.cookies.get_dict()}")
+
+        # Handle Unauthorized (401) response
+        if response.status_code == 401:
+            print("Error: Unauthorized. NSE might be blocking automated requests.")
+            return []
+
+        response.raise_for_status()
+        data = response.json().get('data', [])
+
+        # Step 3: Filter out 'Surrender of Membership' circulars
+        filtered_data = [item for item in data if 'surrender of membership' not in item.get('sub', '').lower()]
+
+        final = []
+        for item in filtered_data:
+            date_str = item['cirDate']
+            title = item['sub']
+            link = item['circFilelink']
+
+            # Convert date format
+            date_obj = datetime.strptime(date_str, "%Y%m%d")
+            formatted_date = date_obj.strftime("%b %d, %Y")
+
+            final.append({'date': formatted_date, 'title': title, 'link': link})
+
+        return final
+
+    except requests.exceptions.RequestException as e:
+        # print(f"Error occurred: {e}")
+        return []
 
 
 

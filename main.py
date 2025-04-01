@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse, HTMLResponse, FileResponse,PlainText
 from typing import Any, List
 import os
 
-from utils import all_sebi, fetch_nse, all_mcx, fetch_sebi_mf_pms, fetch_sebi_ra_ia, fetch_cdsl,fetch_mcx
+from utils import all_sebi, fetch_nse, all_mcx, fetch_sebi_mf_pms, fetch_sebi_ra_ia, fetch_cdsl,fetch_mcx, BaseURL
 
 
 app = FastAPI(title="Comply Sure", version="0.0.1")
@@ -72,7 +72,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:
-                return {'status':'error','segment': segment,'category': category,'message':'No data available'}
+                return {'status':'error','segment': segment,'category': category,'message':'No data available','url':BaseURL.nse}
 
         elif category == 'BSE':
             return {'status':'pending','segment': segment,'category': category}
@@ -85,7 +85,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:
-                return {'status':'error','segment': segment,'category': category,'message':'No data available'}
+                return {'status':'error','segment': segment,'category': category,'message':'No data available','url':BaseURL.nse}
 
 
         elif category == 'MSEI':
@@ -96,7 +96,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:
-                return {'status':'error','segment': segment,'category': category,'message':'No data available'}
+                return {'status':'error','segment': segment,'category': category,'message':'No data available','url':BaseURL.nse}
 
 
         elif category == 'NSDL':
@@ -109,7 +109,7 @@ async def get_segment_data(request: Request, segment:str,category:str):
             if data:
                 return {'status':'ok','segment': segment,'category': category,'data': data}
             else:
-                return {'status':'error','segment': segment,'category': category,'message':'No data available'}
+                return {'status':'error','segment': segment,'category': category,'message':'No data available','url':BaseURL.nse}
 
         elif category == 'AMFI':
             return {'status':'pending','segment': segment,'category': category}
@@ -124,6 +124,6 @@ async def get_segment_data(request: Request, segment:str,category:str):
                 return {'status':'pending','segment': segment,'category': category}
 
     else:
-        return {'status':'error','error': 'Invalid option', 'segment': segment,'category': category,}
+        return {'status':'error','error': 'Invalid option', 'segment': segment,'category': category,'url':BaseURL.nse}
         
 

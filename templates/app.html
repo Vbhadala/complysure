@@ -178,9 +178,13 @@
                 content.appendChild(table);
 
             } else if (data.status === 'error') {
-                // ✅ Show Error Message
-                content.innerHTML = `<div class="text-red-500 text-center font-semibold p-4">❌ Error loading data. Please try again later.</div>`;
-
+                // ✅ Show Error Message with Redirect Link
+                content.innerHTML = `
+                    <div class="text-base-500 text-center font-semibold p-4">
+                        <p class="mt-2">Please try again later or visit 
+                            <a href="${data.url}" target="_blank" class="text-blue-500 underline">this link</a> to read updates from NSE website.</p>
+                    </div>`;
+                
             } else if (data.status === 'pending') {
                 // ✅ Show "Coming Soon" Message
                 content.innerHTML = `
