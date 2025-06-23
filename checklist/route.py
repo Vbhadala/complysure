@@ -20,6 +20,12 @@ import pandas as pd
 import uuid
 from pathlib import Path
 
+from fastapi import BackgroundTasks
+from aiosmtplib import send
+from email.message import EmailMessage
+
+import smtplib, ssl
+
 from checklist.checklist_data import CHECKLIST_ITEMS
 
 
@@ -29,6 +35,49 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")  # Point to your templates directory
 
 
+async def send_email_with_excel(clientCode, data, recipient_email):
+    """Send an email with the Excel as an attachment."""
+
+    smtp_host = "smtp.gmail.com"
+    smtp_port = 465
+    smtp_user = "query.moneypros@gmail.com"
+    smtp_password = "vwty antt fmaf wgxn"
+    
+    results = []
+    user_data = {d.sr_no: d.user_remark for d in data}
+    for item in CHECKLIST_ITEMS:
+        results.append({
+            "SrNo": item["sr_no"],
+            "Parameter": item["parameter"],
+            "User Remark": user_data.get(item["sr_no"], "")
+        })
+
+    df = pd.DataFrame(results)
+
+    buffer = BytesIO()
+    df.to_excel(buffer, index=False, sheet_name="Checklist Results")
+    buffer.seek(0)
+
+    # Build the email
+    msg = EmailMessage()
+    msg["Subject"] = f"Audit Report Checklist - {clientCode}"
+    msg["From"] = smtp_user
+    msg["To"] = recipient_email
+    msg.set_content("Please find the checklist results.")
+    msg.add_attachment(buffer.read(),
+                      maintype="application",
+                      subtype="vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                      filename=f"report_{clientCode}.xlsx")
+
+    # await send(msg, hostname=smtp_host, port=smtp_port,
+    #            username=smtp_user, password=smtp_password,
+    #            use_tls=True)
+
+    await send(msg, hostname=smtp_host, port=587,
+           username=smtp_user, password=smtp_password,
+            start_tls=True)
+
+
 
 class ChecklistItemResponse(BaseModel):
     sr_no: int
@@ -36,10 +85,10 @@ class ChecklistItemResponse(BaseModel):
     remark: str
 
 
+
 class UserChecklistResponse(BaseModel):
     sr_no: int
     user_remark: str
-
 
 
 
@@ -49,11 +98,22 @@ async def get_checklist():
     return CHECKLIST_ITEMS
 
 
+class UserChecklistPayload(BaseModel):
+    clientCode: str
+    payload: List[UserChecklistResponse]
+    
+
 @router.post("/checklist")
-async def post_checklist(data: List[UserChecklistResponse]):
-    """Accept user checklist input."""
-    # Here you can save the data in DB if needed.
-    return {"status": "ok", "count": len(data)}
+async def post_checklist(data: UserChecklistPayload, background_tasks: BackgroundTasks):
+    
+    print(f"Client: {data.clientCode}")
+    print(f"Data: {data.payload}")
+    
+    recipient_email = "north.audit@srcl.in"
+
+    background_tasks.add_task(send_email_with_excel,data.clientCode, data.payload,recipient_email)
+    
+    return {"status": "ok", "count": len(data.payload)}
 
 
 @router.post("/checklist/download")

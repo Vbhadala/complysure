@@ -13,35 +13,38 @@
 
     <div class="bg-white rounded-xl shadow p-4 mt-4">
       <label class="block text-gray-700 font-semibold text-sm mb-2" for="clientCode">
-        Client Code
+        AP Code
       </label>
       <input 
         id="clientCode" 
         name="clientCode" 
         type="text" 
-        placeholder="Enter Client Code"
+        placeholder="Enter AP Code"
         class="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
       />
     </div>
 
     <!-- Checklist Form -->
     <form id="checklistForm" class="bg-white rounded-xl shadow p-4 mt-4">
-        <table class="table-auto w-full border rounded mt-2">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="p-2">Sr No</th>
-                    <th class="p-2">Parameter</th>
-                    <th class="p-2">Your Remark</th>
-                </tr>
-            </thead>
-            <tbody id="checklistTable"></tbody>
-        </table>
-        <div class="mt-4 flex space-x-4">
-            <button type="submit" class="bg-blue-500 text-white rounded px-4 py-2">Save</button>
-            <button id="downloadBtn" class="bg-green-500 text-white rounded px-4 py-2">Download as Excel</button>
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full border rounded mt-2">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-2 text-left">Sr No</th>
+                        <th class="p-2 text-left">Parameter</th>
+                        <th class="p-2 text-left">Your Remark</th>
+                    </tr>
+                </thead>
+                <tbody id="checklistTable"></tbody>
+            </table>
+        </div>
+        <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
+            <button type="submit" class="bg-blue-500 text-white rounded px-4 py-2 w-full sm:w-auto">Save</button>
+            <button id="downloadBtn" class="bg-green-500 text-white rounded px-4 py-2 w-full sm:w-auto">Download as Excel</button>
         </div>
     </form>
 
+    
     <script>
     async function loadChecklist() {
         const resp = await fetch("/api/checklist");
@@ -66,19 +69,36 @@
     }
 
     async function saveData() {
+        
+        const clientCode = document.getElementById('clientCode').value;
         const selects = document.querySelectorAll('select[name="user_remark"]');
+        
         const payload = Array.from(selects).map(s => {
             return { sr_no: parseInt(s.dataset.srno), user_remark: s.value || "" };
         });
+
+        // ✅ Check if any user_remark is blank
+        const anyEmpty = payload.some(item => item.user_remark === "");
+        if (anyEmpty) {
+            alert("Please fill in all the fields before downloading the Excel.");
+            return;
+        }
+
+        if (!clientCode){
+            alert("Please enter AP Code")
+            return;
+        }
+
+        
         await fetch("/api/checklist", {
             method: "POST",
             headers: {"Content-Type":"application/json"},
-            body: JSON.stringify(payload),
+            body: JSON.stringify( {"payload":payload,"clientCode":clientCode}),
         });
         alert("Data saved successfully");
     }
 
-        async function downloadExcel() {
+    async function downloadExcel() {
             const selects = document.querySelectorAll('select[name="user_remark"]');
             const payload = Array.from(selects).map(s => {
                 return { sr_no: parseInt(s.dataset.srno), user_remark: s.value.trim() };
