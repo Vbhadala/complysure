@@ -4,6 +4,7 @@ modules = ["python-3.11"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["cacert", "cargo", "glibcLocales", "libiconv", "libuv", "libxcrypt", "rustc"]
 
 [unitTest]
 language = "python3"

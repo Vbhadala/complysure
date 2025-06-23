@@ -7,15 +7,26 @@ import os
 
 from utils import all_sebi, fetch_nse, all_mcx, fetch_sebi_mf_pms, fetch_sebi_ra_ia, fetch_cdsl,fetch_mcx, BaseURL
 
+from checklist.route import router as router_checklist
+
+
+
 
 app = FastAPI(title="Comply Sure", version="0.0.1")
 templates_path = os.path.join(os.path.dirname(__file__), "templates")
+app.include_router(router_checklist,prefix='/api',tags=["Compliance"])
+
 templates = Jinja2Templates(directory=templates_path)
 
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/page", response_class=HTMLResponse)
+async def checklist_page(request: Request):
+    """Renders the checklist page."""
+    return templates.TemplateResponse("checklist.html", {"request": request})
 
 
 @app.get("/app", response_class=HTMLResponse)

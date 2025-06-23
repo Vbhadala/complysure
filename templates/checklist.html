@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Compliance Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans p-6">
+    <h1 class="text-2xl font-bold text-gray-800">Compliance Checklist</h1>
+
+    <p class="text-gray-600 mt-2">Please review the following parameters and provide your remarks.</p>
+    <p class="text-gray-600 mt-2">Note: Yes means compliant, No means non-compliant, N/A means not applicable.</p>
+
+
+    <div class="bg-white rounded-xl shadow p-4 mt-4">
+      <label class="block text-gray-700 font-semibold text-sm mb-2" for="clientCode">
+        Client Code
+      </label>
+      <input 
+        id="clientCode" 
+        name="clientCode" 
+        type="text" 
+        placeholder="Enter Client Code"
+        class="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      />
+    </div>
+
+    <!-- Checklist Form -->
+    <form id="checklistForm" class="bg-white rounded-xl shadow p-4 mt-4">
+        <table class="table-auto w-full border rounded mt-2">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="p-2">Sr No</th>
+                    <th class="p-2">Parameter</th>
+                    <th class="p-2">Your Remark</th>
+                </tr>
+            </thead>
+            <tbody id="checklistTable"></tbody>
+        </table>
+        <div class="mt-4 flex space-x-4">
+            <button type="submit" class="bg-blue-500 text-white rounded px-4 py-2">Save</button>
+            <button id="downloadBtn" class="bg-green-500 text-white rounded px-4 py-2">Download as Excel</button>
+        </div>
+    </form>
+
+    <script>
+    async function loadChecklist() {
+        const resp = await fetch("/api/checklist");
+        const data = await resp.json();
+        const table = document.getElementById("checklistTable");
+        table.innerHTML = '';
+        data.forEach(item => {
+            table.innerHTML += `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-2">${item.sr_no}</td>
+                <td class="p-2">${item.parameter}</td>
+                <td class="p-2">
+                    <select name="user_remark" data-srno="${item.sr_no}" class="border rounded p-1">
+                        <option value="">--Select--</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="na">N/A</option>
+                    </select>
+                </td>
+            </tr>`;
+        });
+    }
+
+    async function saveData() {
+        const selects = document.querySelectorAll('select[name="user_remark"]');
+        const payload = Array.from(selects).map(s => {
+            return { sr_no: parseInt(s.dataset.srno), user_remark: s.value || "" };
+        });
+        await fetch("/api/checklist", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(payload),
+        });
+        alert("Data saved successfully");
+    }
+
+        async function downloadExcel() {
+            const selects = document.querySelectorAll('select[name="user_remark"]');
+            const payload = Array.from(selects).map(s => {
+                return { sr_no: parseInt(s.dataset.srno), user_remark: s.value.trim() };
+            });
+
+            // ✅ Check if any user_remark is blank
+            const anyEmpty = payload.some(item => item.user_remark === "");
+            if (anyEmpty) {
+                alert("Please fill in all the fields before downloading the Excel.");
+                return;
+            }
+
+            // ✅ Proceed if all fields have been filled
+            const resp = await fetch("/api/checklist/download", {
+                method: "POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify(payload),
+            });
+            const blob = await resp.blob();
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "checklist_results.xlsx";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+
+    document.getElementById("checklistForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await saveData();
+    });
+    document.getElementById("downloadBtn").addEventListener("click", async (e) => {
+        e.preventDefault();
+        await downloadExcel();
+    });
+    loadChecklist();
+    </script>
+</body>
+</html>
