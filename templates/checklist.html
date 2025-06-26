@@ -40,6 +40,7 @@
         </div>
         <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
             <button type="submit" class="bg-blue-500 text-white rounded px-4 py-2 w-full sm:w-auto">Save</button>
+            <button id="saveDraftBtn" class="bg-yellow-500 text-white rounded px-4 py-2 w-full sm:w-auto">Save Draft</button>
             <button id="downloadBtn" class="bg-green-500 text-white rounded px-4 py-2 w-full sm:w-auto">Download as Excel</button>
         </div>
     </form>
@@ -66,6 +67,54 @@
                 </td>
             </tr>`;
         });
+        
+        // Load saved data after creating the form
+        loadSavedData();
+    }
+
+    function saveDraft() {
+        const clientCode = document.getElementById('clientCode').value;
+        if (!clientCode) {
+            alert("Please enter AP Code before saving draft");
+            return;
+        }
+
+        const selects = document.querySelectorAll('select[name="user_remark"]');
+        const draftData = {
+            clientCode: clientCode,
+            payload: Array.from(selects).map(s => ({
+                sr_no: parseInt(s.dataset.srno),
+                user_remark: s.value || ""
+            }))
+        };
+
+        localStorage.setItem(`checklist_draft_${clientCode}`, JSON.stringify(draftData));
+        alert("Draft saved successfully!");
+    }
+
+    function loadSavedData() {
+        const clientCode = document.getElementById('clientCode').value;
+        if (!clientCode) return;
+
+        const savedData = localStorage.getItem(`checklist_draft_${clientCode}`);
+        if (savedData) {
+            const draftData = JSON.parse(savedData);
+            
+            // Populate the form with saved data
+            draftData.payload.forEach(item => {
+                const select = document.querySelector(`select[data-srno="${item.sr_no}"]`);
+                if (select && item.user_remark) {
+                    select.value = item.user_remark;
+                }
+            });
+        }
+    }
+
+    function checkForSavedData() {
+        const clientCode = document.getElementById('clientCode').value;
+        if (clientCode) {
+            loadSavedData();
+        }
     }
 
     async function saveData() {
@@ -135,6 +184,14 @@
         e.preventDefault();
         await downloadExcel();
     });
+    document.getElementById("saveDraftBtn").addEventListener("click", (e) => {
+        e.preventDefault();
+        saveDraft();
+    });
+    
+    // Check for saved data when AP Code changes
+    document.getElementById("clientCode").addEventListener("blur", checkForSavedData);
+    
     loadChecklist();
     </script>
 </body>
