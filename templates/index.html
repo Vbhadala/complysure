@@ -2,42 +2,44 @@
 
 {% block content %}
 
-<div id = "main" class="container w-full gap-40">
+<div id="main" class="container w-full">
 
-    <div class="w-full hero min-h-[90vh] bg-base-100">
+    <div class="w-full hero min-h-[80vh] sm:min-h-[90vh] bg-base-100">
         
-        <div class="hero-content text-center">
+        <div class="hero-content text-center px-4">
             
             <div class="max-w-md">
-                <h1 class="text-5xl font-bold">ComplySure</h1>
-                <p class="py-6">Your one-stop solution for tracking compliance circulars from SEBI, NSE, BSE, and other regulatory bodies.</p>
-                <a href="/app" class="btn btn-primary">Get Started</a>
-
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold">ComplySure</h1>
+                <p class="py-4 sm:py-6 text-sm sm:text-base">Your one-stop solution for tracking compliance circulars from SEBI, NSE, BSE, and other regulatory bodies.</p>
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                    <a href="/app" class="btn btn-primary w-full sm:w-auto">Get Started</a>
+                    <a href="/page" class="btn btn-outline w-full sm:w-auto">Checklist</a>
+                </div>
             </div>
             
         </div>
         
     </div>
     
-    <div  class="w-full mx-auto px-20 py-8">
+    <div class="w-full mx-auto px-4 sm:px-8 md:px-12 lg:px-20 py-8">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-20">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 md:gap-12 lg:gap-20">
             <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h2 class="card-title">Real-time Updates</h2>
-                    <p>Stay informed with instant notifications about new circulars and compliance updates.</p>
+                <div class="card-body p-4 sm:p-6">
+                    <h2 class="card-title text-lg sm:text-xl">Real-time Updates</h2>
+                    <p class="text-sm sm:text-base">Stay informed with instant notifications about new circulars and compliance updates.</p>
                 </div>
             </div>
             <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h2 class="card-title">Multi-Exchange Support</h2>
-                    <p>Track circulars from multiple exchanges and regulatory bodies in one place.</p>
+                <div class="card-body p-4 sm:p-6">
+                    <h2 class="card-title text-lg sm:text-xl">Multi-Exchange Support</h2>
+                    <p class="text-sm sm:text-base">Track circulars from multiple exchanges and regulatory bodies in one place.</p>
                 </div>
             </div>
             <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h2 class="card-title">Smart Search</h2>
-                    <p>Easily find relevant circulars with our intelligent search functionality.</p>
+                <div class="card-body p-4 sm:p-6">
+                    <h2 class="card-title text-lg sm:text-xl">Smart Search</h2>
+                    <p class="text-sm sm:text-base">Easily find relevant circulars with our intelligent search functionality.</p>
                 </div>
             </div>
         </div>
