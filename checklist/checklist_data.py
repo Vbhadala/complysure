@@ -33,7 +33,7 @@ CHECKLIST_ITEMS = [
     {"sr_no": 32, "parameter": "AP's mobile number and email ID are correctly mapped with their respective clients.", "remark": "yes"},
     {"sr_no": 33, "parameter": "AP’s name does not imply advisory/investment services unless SEBI-registered; valid certificate available if applicable.", "remark": "yes"},
     {"sr_no": 34, "parameter": "No incentives are offered to clients for account opening.", "remark": "yes"},
-    {"sr_no": 35, "parameter": "No payments are received from any other broker.", "remark": "yes"},
+    {"sr_no": 35, "parameter": "No movement of Funds between the clients.", "remark": "yes"},
     {"sr_no": 36, "parameter": "No fixed-amount payments are made at regular intervals without a legitimate reason.", "remark": "yes"},
     {"sr_no": 37, "parameter": "There are no repeated fund movements to/from the same counterparty, except where justified and documented.", "remark": "yes"},
     {"sr_no": 38, "parameter": "No high-value or frequent cash deposits are made in violation of regulatory norms.", "remark": "yes"},
