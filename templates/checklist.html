@@ -38,6 +38,20 @@
                 <tbody id="checklistTable"></tbody>
             </table>
         </div>
+        
+        <!-- Non-Compliance Brief Section -->
+        <div class="mt-6">
+            <label class="block text-gray-700 font-semibold text-sm mb-2" for="nonComplianceBrief">
+                Brief about Non-Compliance (if any)
+            </label>
+            <textarea 
+                id="nonComplianceBrief" 
+                name="nonComplianceBrief" 
+                rows="4" 
+                placeholder="Enter details about any non-compliance issues..."
+                class="w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            ></textarea>
+        </div>
         <div class="mt-4 flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
             <button type="submit" class="bg-blue-500 text-white rounded px-4 py-2 w-full sm:w-auto">Submit Report</button>
             <button id="saveDraftBtn" class="bg-yellow-500 text-white rounded px-4 py-2 w-full sm:w-auto">Save Draft</button>
@@ -60,8 +74,8 @@
                 <td class="p-2">
                     <select name="user_remark" data-srno="${item.sr_no}" class="border rounded p-1">
                         <option value="">--Select--</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
+                        <option value="yes">True</option>
+                        <option value="no">False</option>
                         <option value="na">N/A</option>
                     </select>
                 </td>
@@ -80,8 +94,10 @@
         }
 
         const selects = document.querySelectorAll('select[name="user_remark"]');
+        const nonComplianceBrief = document.getElementById('nonComplianceBrief').value;
         const draftData = {
             clientCode: clientCode,
+            nonComplianceBrief: nonComplianceBrief,
             payload: Array.from(selects).map(s => ({
                 sr_no: parseInt(s.dataset.srno),
                 user_remark: s.value || ""
@@ -107,6 +123,11 @@
                     select.value = item.user_remark;
                 }
             });
+            
+            // Populate non-compliance brief if exists
+            if (draftData.nonComplianceBrief) {
+                document.getElementById('nonComplianceBrief').value = draftData.nonComplianceBrief;
+            }
         }
     }
 
@@ -121,6 +142,7 @@
         
         const clientCode = document.getElementById('clientCode').value;
         const selects = document.querySelectorAll('select[name="user_remark"]');
+        const nonComplianceBrief = document.getElementById('nonComplianceBrief').value;
         
         const payload = Array.from(selects).map(s => {
             return { sr_no: parseInt(s.dataset.srno), user_remark: s.value || "" };
@@ -142,13 +164,14 @@
         await fetch("/api/checklist", {
             method: "POST",
             headers: {"Content-Type":"application/json"},
-            body: JSON.stringify( {"payload":payload,"clientCode":clientCode}),
+            body: JSON.stringify( {"payload":payload,"clientCode":clientCode,"nonComplianceBrief":nonComplianceBrief}),
         });
         alert("Data saved successfully");
     }
 
     async function downloadExcel() {
             const selects = document.querySelectorAll('select[name="user_remark"]');
+            const nonComplianceBrief = document.getElementById('nonComplianceBrief').value;
             const payload = Array.from(selects).map(s => {
                 return { sr_no: parseInt(s.dataset.srno), user_remark: s.value.trim() };
             });
@@ -164,7 +187,7 @@
             const resp = await fetch("/api/checklist/download", {
                 method: "POST",
                 headers: {"Content-Type":"application/json"},
-                body: JSON.stringify(payload),
+                body: JSON.stringify({"payload": payload, "nonComplianceBrief": nonComplianceBrief}),
             });
             const blob = await resp.blob();
             const a = document.createElement("a");

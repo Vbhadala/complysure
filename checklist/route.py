@@ -35,7 +35,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")  # Point to your templates directory
 
 
-async def send_email_with_excel(clientCode, data, recipient_email):
+async def send_email_with_excel(clientCode, data, nonComplianceBrief, recipient_email):
     """Send an email with the Excel as an attachment."""
 
     smtp_host = "smtp.gmail.com"
@@ -50,6 +50,20 @@ async def send_email_with_excel(clientCode, data, recipient_email):
             "SrNo": item["sr_no"],
             "Parameter": item["parameter"],
             "User Remark": user_data.get(item["sr_no"], "")
+        })
+    
+    # Add non-compliance brief as a separate row
+    if nonComplianceBrief:
+        results.append({
+            "SrNo": "",
+            "Parameter": "Brief about Non-Compliance (if any)",
+            "User Remark": nonComplianceBrief
+        })
+    else:
+        results.append({
+            "SrNo": "",
+            "Parameter": "Brief about Non-Compliance (if any)",
+            "User Remark": "Nil"
         })
 
     df = pd.DataFrame(results)
@@ -101,6 +115,7 @@ async def get_checklist():
 class UserChecklistPayload(BaseModel):
     clientCode: str
     payload: List[UserChecklistResponse]
+    nonComplianceBrief: str = ""
     
 
 @router.post("/checklist")
@@ -108,26 +123,47 @@ async def post_checklist(data: UserChecklistPayload, background_tasks: Backgroun
     
     print(f"Client: {data.clientCode}")
     print(f"Data: {data.payload}")
+    print(f"Non-Compliance Brief: {data.nonComplianceBrief}")
     
     recipient_email = "north.audit@srcl.in"
 
-    background_tasks.add_task(send_email_with_excel,data.clientCode, data.payload,recipient_email)
+    background_tasks.add_task(send_email_with_excel,data.clientCode, data.payload, data.nonComplianceBrief, recipient_email)
     
     return {"status": "ok", "count": len(data.payload)}
 
 
+class DownloadPayload(BaseModel):
+    payload: List[UserChecklistResponse]
+    nonComplianceBrief: str = ""
+
 @router.post("/checklist/download")
-async def download_checklist(data: List[UserChecklistResponse]):
+async def download_checklist(data: DownloadPayload):
     """Return an Excel file with user inputs merged into the checklist."""
     # Merge the user input into the checklist
     results = []
-    user_data = {d.sr_no: d.user_remark for d in data}
+    user_data = {d.sr_no: d.user_remark for d in data.payload}
     for item in CHECKLIST_ITEMS:
         results.append({
             "SrNo": item["sr_no"],
             "Parameter": item["parameter"],
             "Original Remark": item["remark"],
             "User Remark": user_data.get(item["sr_no"], "")
+        })
+    
+    # Add non-compliance brief as a separate row
+    if data.nonComplianceBrief:
+        results.append({
+            "SrNo": "",
+            "Parameter": "Brief about Non-Compliance (if any)",
+            "Original Remark": "",
+            "User Remark": data.nonComplianceBrief
+        })
+    else:
+        results.append({
+            "SrNo": "",
+            "Parameter": "Brief about Non-Compliance (if any)",
+            "Original Remark": "",
+            "User Remark": "Nil"
         })
 
     df = pd.DataFrame(results)
